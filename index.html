@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0c1c59">
+  <link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png">
+
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Day Pass - Portsmouth (Ticket Style - Side Punch Circles)</title>
+<style>
+:root{
+  --bg:#0c1c59;
+  --card-bg:#ffffff;
+  --ticket-red:#8a0124;
+  --ticket-blue:#071d75;
+  --muted:#eeeeee;
+  --countdown-color:#d450b3;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  font-family:'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  padding:28px;
+  display:flex;
+  justify-content:center;
+  height:100vh;
+  width:100vw;
+}
+.card{
+  min-height:700px;
+  width:90vw;
+  max-width:480px;
+  background:var(--card-bg);
+  border-radius:12px;
+  padding:18px;
+  padding-bottom:80px;
+  margin:50px;
+  box-shadow:0 12px 30px rgba(0,0,0,0.25);
+  position:relative;
+}
+.close-btn{
+  position:absolute;
+  top:-60px;
+  right:-5px;
+  font-size:40px;
+  color:#ffffff;
+  cursor:pointer;
+  background:none;
+  border:none;
+  z-index:60;
+  line-height:1;
+}
+.close-btn:hover{color:var(--ticket-red);}
+.highlight-panel::before,
+.highlight-panel::after {
+  content: "";
+  position: absolute;
+  width: 23px;
+  height: 23px;
+  background: var(--bg);
+  border-radius: 60%;
+  top: 20%;
+  transform: translateY(-90%);
+  z-index: 5;
+}
+.highlight-panel::before { left: -36px; }
+.highlight-panel::after  { right: -36px; }
+.qr-wrapper{position:relative;padding:8px 0 12px; border-radius:10px;}
+.qr{display:flex;justify-content:center;position:relative;z-index:10}
+.qr img{width:230px;height:230px;border-radius:10px;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,0.12);display:block}
+.countdown{display:flex;gap:10px;justify-content:center;margin:2px 0 16px}
+.countdown-box{flex:5;max-width:78px;text-align:center}
+.countdown-label{font-size:12px;color:var(--countdown-color);margin-bottom:6px;font-weight:700}
+.countdown-inner{width:65px;height:50px;background:var(--muted);border-radius:5px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;color:var(--countdown-color);position:relative}
+.countdown-inner.seconds{ background: none;width:70px;height:50px;position:relative;overflow:visible}
+.sec-spinner{position:absolute;width:42px;height:42px;border-radius:50%;top:6px;left:13px;z-index:0;
+  mask:radial-gradient(farthest-side, transparent 78%, black 79%);
+  -webkit-mask:radial-gradient(farthest-side, transparent 78%, black 79%);
+  animation:spin 1.3s linear infinite;
+  background:conic-gradient(from 0deg, var(--countdown-color) 0deg, rgba(128,0,128,0.4) 90deg, transparent 270deg);
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.red-panel-animated{
+  height:95px;
+  border-radius:5px;
+  background:var(--ticket-red);
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:8px 0;
+  box-shadow:inset 0 -5px 14px rgba(0,0,0,0.2);
+  transition: background 1s ease-in-out;
+}
+.green-square {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: #071d75;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+  border-radius:2px; filter: url(#tornPaper);
+  -webkit-filter: url(#tornPaper);
+}
+.green-square.show {
+  opacity: 1;
+  transform: scale(1);
+}
+.red-text{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  z-index:5;
+  color:#fff;
+  font-family:'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-weight:700;
+  font-size:250px;
+  text-align:center;
+  line-height:1;
+  text-shadow:0 2px 5px rgba(0,0,0,0.35);
+  opacity:0;
+  transition:opacity .5s ease;
+  white-space:nowrap;
+}
+.red-text.show{opacity:1;}
+.blue-panel-static{
+  background:var(--ticket-blue);
+  height:80px;
+  color:#fff;
+  padding:10px 12px;
+  border-radius:8px;
+  text-align:center;
+  font-weight:500;
+  font-size:25px;
+  margin:10px -0px;
+  line-height:1.3;
+  box-shadow:0 4px 10px rgba(0,0,0,0.08);
+}
+.blue-panel-static span{display:inline; white-space:nowrap;}
+.info{background:#f7f7f7;padding:12px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.05);margin-top:15px -15px;}
+.info-row{display:flex;align-items:center;gap:6px;margin:6px 0;white-space:nowrap;overflow:hidden}
+.info-row strong{flex:0 0 auto;font-weight:700;color:#111;font-size:15px}
+.info-row span{flex:1 1 auto;font-weight:500;color:rgba(0,0,0,0.78);font-size:15px;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:400px){
+  .red-text{font-size:65px}
+}
+.highlight-panel { overflow: visible; position: relative; }
+.qr-wrapper { position: relative; z-index: 12; }
+.qr-wrapper::before { left: -14px; }
+.qr-wrapper::after  { right: -14px; }
+@media (max-width:360px){
+  .qr-wrapper::before,
+  .qr-wrapper::after {
+    width: 20px;
+    height: 20px;
+    left: -10px;
+    right: -10px;
+    box-shadow: 0 0 0 5px var(--card-bg);
+  }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <filter id="tornPaper" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence baseFrequency="0.9" numOctaves="2" seed="2" stitchTiles="stitch" result="turb" />
+      <feDisplacementMap in="SourceGraphic" in2="turb" scale="6" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+</svg>
+<div class="card">
+  <button class="close-btn" aria-label="Close">×</button>
+  <div class="highlight-panel">
+   <div class="qr-wrapper">
+      <div class="qr"><img alt="QR Code" src="https://i.postimg.cc/Y9yQjkjb/qr-code.png"/></div>
+    </div>
+    <div class="countdown">
+      <div class="countdown-box"><div class="countdown-label">Days</div><div class="countdown-inner" id="days">0</div></div>
+      <div class="countdown-box"><div class="countdown-label">Hours</div><div class="countdown-inner" id="hours">00</div></div>
+      <div class="countdown-box"><div class="countdown-label">Minutes</div><div class="countdown-inner" id="minutes">00</div></div>
+      <div class="countdown-box"><div class="countdown-label">Seconds</div><div class="countdown-inner seconds"><div class="sec-spinner"></div><div id="secVal" style="position:relative;z-index:2;font-weight:800">00</div></div></div>
+    </div>
+    <div class="red-panel-animated" id="redPanel">
+      <div id="timeText" class="red-text">--:--</div>
+      <div id="tensText" class="red-text">HERB</div>
+    </div>
+    <div class="blue-panel-static"><span>Solent Go</span><br><span>Day - Adult - Portsmouth</span></div>
+    <div class="info">
+      <div class="info-row"><strong>Passenger:</strong><span id="passName">Mohamed Abdul Hamza</span></div>
+      <div class="info-row"><strong>Purchased:</strong><span id="purchaseTime">--</span></div>
+      <div class="info-row"><strong>Provider:</strong><span>First Bus Portsmouth Fareha...</span></div>
+    </div>
+  </div>
+</div>
+<script>
+function pad(n){return n.toString().padStart(2,'0');}
+function setPurchase(){
+  const el=document.getElementById('purchaseTime');
+  const now=new Date();
+  el.textContent=pad(now.getDate())+'/'+pad(now.getMonth()+1)+'/'+((''+now.getFullYear()).slice(-2))+' at '+pad(now.getHours())+':'+pad(now.getMinutes());
+}
+function nextExpiry(){
+  const now=new Date();
+  let e=new Date(now.getFullYear(),now.getMonth(),now.getDate(),4,0,0,0);
+  if(now>=e)e.setDate(e.getDate()+1);
+  return e;
+}
+function updateCountdown(){
+  const exp=nextExpiry(),now=new Date();
+  let diff=exp-now;if(diff<0)diff=0;
+  const d=Math.floor(diff/(1000*60*60*24));
+  const h=Math.floor((diff/(1000*60*60))%24);
+  const m=Math.floor((diff/(1000*60))%60);
+  const s=Math.floor((diff/1000)%60);
+  document.getElementById('days').textContent=d;
+  document.getElementById('hours').textContent=pad(h);
+  document.getElementById('minutes').textContent=pad(m);
+  document.getElementById('secVal').textContent=pad(s);
+}
+function updateRedPanel(){
+  const timeEl=document.getElementById('timeText');
+  const now=new Date();
+  timeEl.textContent=pad(now.getHours())+':'+pad(now.getMinutes());
+}
+let showTime=true;
+function alternateText(){
+  const t=document.getElementById('timeText');
+  const tens=document.getElementById('tensText');
+  if(showTime){
+    tens.classList.remove('show');
+    setTimeout(()=>t.classList.add('show'),60);
+  }else{
+    t.classList.remove('show');
+    setTimeout(()=>tens.classList.add('show'),60);
+  }
+  showTime=!showTime;
+}
+let reverseWave=false;
+function waveTransition(){
+  const panel=document.getElementById('redPanel');
+  const size=30,gap=2;
+  const cols=Math.ceil(panel.clientWidth/(size+gap));
+  const rows=Math.ceil(panel.clientHeight/(size+gap));
+  panel.querySelectorAll('.green-square').forEach(sq=>sq.remove());
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const sq=document.createElement('div');
+      sq.className='green-square';
+      sq.style.width=sq.style.height=size+'px';
+      sq.style.left=`${c*(size+gap)}px`;
+      sq.style.top=`${r*(size+gap)}px`;
+      panel.appendChild(sq);
+    }
+  }
+  const squares=panel.querySelectorAll('.green-square');
+  squares.forEach((sq,i)=>{
+    const col=i%cols;
+    const row=Math.floor(i/cols);
+    const actualCol=reverseWave?cols-col-1:col;
+    const actualRow=reverseWave?row:rows-row-1;
+    const delay=(actualCol+actualRow)*180;
+    setTimeout(()=>sq.classList.add('show'),delay);
+    setTimeout(()=>sq.classList.remove('show'),delay+1600);
+  });
+  setTimeout(()=>panel.querySelectorAll('.green-square').forEach(sq=>sq.remove()),(cols+rows)*90+1600);
+  reverseWave=!reverseWave;
+}
+function colorLoop() {
+  const panel = document.getElementById('redPanel');
+  setTimeout(() => {
+    panel.style.transition = 'background 1.2s ease-in-out';
+    panel.style.background = 'var(--ticket-blue)';
+  }, 5000);
+  setTimeout(() => {
+    panel.style.background = 'var(--ticket-red)';
+  }, 7000);
+}
+function combinedAnimation() {
+  waveTransition();
+  colorLoop();
+}
+setPurchase();
+updateCountdown();
+updateRedPanel();
+document.getElementById('timeText').classList.add('show');
+setInterval(updateCountdown,1000);
+setInterval(updateRedPanel,2000);
+setInterval(setPurchase,60000);
+setInterval(alternateText,2200);
+setInterval(combinedAnimation,5000);
+combinedAnimation();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js').then(function(reg){
+      console.log('Service worker registered.', reg);
+    }).catch(function(err){
+      console.warn('SW registration failed:', err);
+    });
+  });
+}
+</script>
+
+</body>
+</html>
